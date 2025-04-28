@@ -13,12 +13,12 @@ on:
       kernel_source:
         description: "选择内核源码"
         required: false
-        default: "yourname"
+        default: "unifreq"
         type: choice
         options:
           - unifreq
           - codesnas
-          - yourname
+          - wingonwu
       kernel_version:
         description: "选择内核版本"
         required: false
