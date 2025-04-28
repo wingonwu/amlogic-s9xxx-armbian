@@ -4,22 +4,23 @@
 # Copyright (C) 2021 https://github.com/ophub/amlogic-s9xxx-armbian
 #==========================================================================
 
-name: Compile the kernel
+name: 编译内核
 
 on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
       kernel_source:
-        description: "Select the kernel source"
+        description: "选择内核源码"
         required: false
-        default: "unifreq"
+        default: "yourname"
         type: choice
         options:
           - unifreq
           - codesnas
+          - yourname
       kernel_version:
-        description: "Select kernel version"
+        description: "选择内核版本"
         required: false
         default: "6.12.y"
         type: choice
@@ -34,12 +35,12 @@ on:
           - 5.15.y_6.1.y
           - 6.6.y_6.12.y
       kernel_auto:
-        description: "Auto use the latest kernel"
+        description: "自动使用最新内核"
         required: false
         default: true
         type: boolean
       kernel_package:
-        description: "Select compile package list"
+        description: "选择编译包列表"
         required: false
         default: "all"
         type: choice
@@ -47,7 +48,7 @@ on:
           - all
           - dtbs
       kernel_toolchain:
-        description: "Select the compilation toolchain"
+        description: "选择编译工具链"
         required: false
         default: "gcc"
         type: choice
@@ -60,7 +61,7 @@ on:
           - gcc-13.2
           - gcc-13.3
       compress_format:
-        description: "Set the initrd compression format"
+        description: "设置 initrd 压缩格式"
         required: false
         default: "xz"
         type: choice
@@ -70,9 +71,9 @@ on:
           - zstd
           - lzma
       kernel_sign:
-        description: "Set the kernel custom signature"
+        description: "设置内核自定义签名"
         required: false
-        default: "-ophub"
+        default: "-yourname"
         type: choice
         options:
           - -ophub
@@ -90,7 +91,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Initialization environment
+      - name: 初始化环境
         id: init
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -112,7 +113,7 @@ jobs:
           sudo timedatectl set-timezone "${TZ}"
           echo "status=success" >> ${GITHUB_OUTPUT}
 
-      - name: Create simulated physical disk
+      - name: 创建模拟物理磁盘
         id: disk
         run: |
           mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
@@ -131,7 +132,7 @@ jobs:
           sudo chown -R runner.runner /builder
           df -Th
 
-      - name: Create a mapped directory
+      - name: 创建映射目录
         id: mapped
         working-directory: /builder
         run: |
@@ -141,7 +142,7 @@ jobs:
           ln -sf /builder/output /home/runner/work/_actions/wingonwu/amlogic-s9xxx-armbian/main/compile-kernel/output
           echo "status=success" >> ${GITHUB_OUTPUT}
 
-      - name: Compile the kernel [ ${{ inputs.kernel_version }} ]
+      - name: 编译内核,版本： [ ${{ inputs.kernel_version }} ]
         uses: wingonwu/amlogic-s9xxx-armbian@main
         if: ${{ steps.mapped.outputs.status }} == 'success' && !cancelled()
         with:
@@ -154,7 +155,7 @@ jobs:
           kernel_toolchain: ${{ inputs.kernel_toolchain }}
           compress_format: ${{ inputs.compress_format }}
 
-      - name: Upload Kernel to Release
+      - name: 上传发布内核
         uses: ncipollo/release-action@main
         if: ${{ env.PACKAGED_STATUS }} == 'success' && !cancelled()
         with:
@@ -165,6 +166,6 @@ jobs:
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-            The kernel can be used to compile Armbian and OpenWrt.
-            The kernel source code comes from: ${{ inputs.kernel_source }}
-            The kernel compilation toolchain: ${{ inputs.kernel_toolchain }}
+            内核可用于编译 Armbian 和 OpenWrt 。
+            内核源代码来自： ${{ inputs.kernel_source }}
+            内核编译工具链： ${{ inputs.kernel_toolchain }}
